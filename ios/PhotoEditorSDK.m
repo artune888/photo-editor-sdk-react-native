@@ -35,6 +35,7 @@ typedef enum {
 
 @property (strong, nonatomic) RCTPromiseResolveBlock resolver;
 @property (strong, nonatomic) RCTPromiseRejectBlock rejecter;
+@property (strong, nonatomic) NSString* originalPath;
 @property (strong, nonatomic) PESDKPhotoEditViewController* editController;
 @property (strong, nonatomic) PESDKCameraViewController* cameraController;
 @property (strong, nonatomic) PESDKTransformToolControllerOptions* transFormController;
@@ -226,6 +227,8 @@ static NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXY
 }
 
 RCT_EXPORT_METHOD(openEditor: (NSString*)path options: (NSArray *)features options: (NSDictionary*) options resolve: (RCTPromiseResolveBlock)resolve reject: (RCTPromiseRejectBlock)reject) {
+    self.originalPath = path;
+
     UIImage* image = [UIImage imageWithContentsOfFile: path];
     PESDKConfiguration* config = [self _buildConfig:options];
     [self _openEditor:image alternativePhoto:nil config:config features:features resolve:resolve reject:reject];
@@ -237,6 +240,8 @@ RCT_EXPORT_METHOD(openEditor: (NSString*)path options: (NSArray *)features optio
 }
 
 RCT_EXPORT_METHOD(openCamera: (NSArray*) features options:(NSDictionary*) options resolve: (RCTPromiseResolveBlock)resolve reject: (RCTPromiseRejectBlock)reject) {
+    self.originalPath = nil;
+
     __weak typeof(self) weakSelf = self;
     UIViewController *currentViewController = RCTPresentedViewController();
     PESDKConfiguration* config = [self _buildConfig:options];
@@ -283,6 +288,14 @@ RCT_EXPORT_METHOD(openCamera: (NSArray*) features options:(NSDictionary*) option
 }
 
 -(void)photoEditViewController:(PESDKPhotoEditViewController *)photoEditViewController didSaveImage:(UIImage *)image imageAsData:(NSData *)data {
+    if ([data length] == 0 && self.originalPath != nil) {
+        self.resolver(self.originalPath);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.editController.presentingViewController dismissViewControllerAnimated:YES completion:NULL];
+        });
+        return;
+    }
+
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,
                                                          NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
