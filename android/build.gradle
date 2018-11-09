@@ -12,7 +12,7 @@ apply plugin: 'com.android.library'
 
 dependencies {
     compile "com.facebook.react:react-native:+"
-    compile 'ly.img.android:photo-editor-sdk:5.0.8'
+    compile 'ly.img.android:photo-editor-sdk:5.0.14'
 }
 
 android {
