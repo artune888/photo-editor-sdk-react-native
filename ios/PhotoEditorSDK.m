@@ -175,7 +175,8 @@ static NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXY
     if (image == nil) {
         self.editController = [[PESDKPhotoEditViewController alloc] initWithPhotoAsset:photo configuration:config menuItems:menuItems photoEditModel:photoEditModel];
     } else {
-        self.editController = [[PESDKPhotoEditViewController alloc] initWithPhoto:image configuration:config menuItems:menuItems photoEditModel:photoEditModel];
+        PESDKPhoto *photoFromImage = [[PESDKPhoto alloc] initWithImage:image];
+        self.editController = [[PESDKPhotoEditViewController alloc] initWithPhotoAsset:photoFromImage configuration:config menuItems:menuItems photoEditModel:photoEditModel];
     }
 
     self.editController.delegate = self;
@@ -219,7 +220,7 @@ static NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXY
 
 
             // TODO: Video recording not supported currently
-            b.allowedRecordingModesAsNSNumbers = @[[NSNumber numberWithInteger:RecordingModePhoto]];
+            b.allowedRecordingModes = @[[NSNumber numberWithInteger:RecordingModePhoto]];
         }];
     }];
 
